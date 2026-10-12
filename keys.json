@@ -1,0 +1,9 @@
+{
+  "ALLOWED_KEYS": {
+    "MALZ-USER-001": "user1",
+    "MALZ-USER-002": "user2",
+    "MALZ-USER-003": "user3"
+  },
+  "ADMIN_KEYS": ["MALZ-ADMIN"],
+  "RESET_TZ": "Asia/Jakarta"
+}
