@@ -1,0 +1,12 @@
+[phases.setup]
+nixPkgs = ["python311", "gcc", "libffi", "openssl", "python311Packages.pip"]
+
+[phases.install]
+cmds = [
+  "python -m venv --copies /app/.venv",
+  "/app/.venv/bin/pip install --upgrade pip wheel setuptools",
+  "/app/.venv/bin/pip install -r requirements.txt"
+]
+
+[start]
+cmd = "gunicorn app:app --bind 0.0.0.0:${PORT:-8080} --workers 1 --threads 4 --timeout 120 --worker-class gthread"
