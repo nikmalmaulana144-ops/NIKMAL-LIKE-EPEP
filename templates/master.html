@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Master Panel — MALZ CODEX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#050509;--bg-2:#0a0a10;--surface:#0e0e15;--surface-2:#13131c;
+    --border:#1a1a24;--border-hi:#26262f;--border-3:#33333f;
+    --text:#f7f7fa;--text-dim:#9a9aa8;--text-mute:#5f5f6e;
+    --accent:#00e5a0;--accent-2:#5b8cff;--accent-3:#a855f7;
+    --success:#22c55e;--danger:#ff4d6d;--warning:#ffb84d;--info:#06b6d4;--gold:#fbbf24;
+  }
+  html,body{height:100%}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;letter-spacing:-.01em}
+  .ambient{position:fixed;inset:0;pointer-events:none;z-index:0}
+  .ambient::before{content:'';position:absolute;top:-20%;left:50%;width:1200px;height:1200px;transform:translateX(-50%);background:radial-gradient(circle,rgba(0,229,160,.10) 0%,transparent 60%);filter:blur(80px)}
+  .ambient::after{content:'';position:absolute;bottom:-30%;left:-10%;width:900px;height:900px;background:radial-gradient(circle,rgba(91,140,255,.10) 0%,transparent 60%);filter:blur(80px)}
+  .grid-bg{position:fixed;inset:0;pointer-events:none;z-index:1;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 40%,#000 40%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 40%,#000 40%,transparent 100%)}
+
+  /* NAV */
+  .nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:12px 22px;border-bottom:1px solid var(--border);background:rgba(5,5,9,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);gap:10px;flex-wrap:wrap}
+  .nav-brand{display:flex;align-items:center;gap:10px}
+  .nav-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--danger));display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;box-shadow:0 0 24px rgba(251,191,36,.35);flex-shrink:0}
+  .nav-title{font-weight:800;font-size:15px;line-height:1.2}
+  .nav-title span{color:var(--text-mute);font-weight:500;font-size:12.5px}
+  .nav-badge{padding:4px 10px;border-radius:999px;background:linear-gradient(135deg,rgba(251,191,36,.15),rgba(255,77,109,.15));border:1px solid rgba(251,191,36,.4);color:var(--gold);font-size:10.5px;font-weight:700;letter-spacing:.05em}
+  .nav-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+  .shell{position:relative;z-index:5;max-width:1440px;margin:0 auto;padding:22px;display:grid;grid-template-columns:260px 1fr;gap:22px}
+  .login-wrap{grid-column:1 / -1;display:flex;align-items:center;justify-content:center;min-height:60vh}
+  .login-card{width:100%;max-width:400px;background:linear-gradient(180deg,var(--surface),var(--bg-2));border:1px solid var(--border);border-radius:16px;padding:32px;box-shadow:0 24px 64px rgba(0,0,0,.5)}
+  .login-icon{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--gold),var(--danger));display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;box-shadow:0 0 30px rgba(251,191,36,.4);color:#fff}
+  .login-card h2{font-size:22px;font-weight:900;letter-spacing:-.02em;margin-bottom:6px}
+  .login-card p{font-size:13px;color:var(--text-dim);margin-bottom:22px}
+
+  /* SIDEBAR */
+  .sidebar{background:linear-gradient(180deg,var(--surface),var(--bg-2));border:1px solid var(--border);border-radius:14px;padding:16px;height:fit-content;position:sticky;top:80px}
+  .sidebar-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-mute);margin-bottom:10px;padding:0 6px}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;font-size:13px;font-weight:600;color:var(--text-dim);cursor:pointer;transition:all .15s;border:1px solid transparent;margin-bottom:2px}
+  .nav-item:hover{background:var(--surface-2);color:var(--text)}
+  .nav-item.active{background:linear-gradient(90deg,rgba(0,229,160,.15),rgba(91,140,255,.05));color:var(--text);border-color:rgba(0,229,160,.25)}
+  .nav-item .ico{font-size:14px;width:18px;text-align:center}
+  .nav-item .badge{margin-left:auto;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(0,229,160,.15);color:var(--accent);font-family:'JetBrains Mono',monospace}
+
+  .sidebar-divider{height:1px;background:var(--border);margin:12px 0}
+  .sidebar-dev{padding:12px;background:linear-gradient(135deg,rgba(0,229,160,.05),rgba(91,140,255,.03));border:1px solid rgba(0,229,160,.18);border-radius:11px;margin-top:8px}
+  .sidebar-dev-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .sidebar-dev-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);flex-shrink:0}
+  .sidebar-dev-info h4{font-size:12px;font-weight:800;color:#fff;margin-bottom:1px}
+  .sidebar-dev-info span{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--text-mute)}
+  .sidebar-dev-links{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+  .sidebar-dev-links a{display:flex;align-items:center;justify-content:center;gap:4px;padding:6px 4px;border-radius:7px;background:rgba(255,255,255,.03);border:1px solid var(--border-hi);color:var(--text-dim);font-size:10px;font-weight:600;font-family:'JetBrains Mono',monospace;text-decoration:none;transition:all .15s}
+  .sidebar-dev-links a:hover{background:rgba(0,229,160,.08);border-color:rgba(0,229,160,.35);color:var(--accent)}
+
+  .main{min-width:0}
+  .panel{display:none}
+  .panel.active{display:block;animation:fadeUp .4s cubic-bezier(.16,1,.3,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .panel-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+  .panel-title{font-size:20px;font-weight:800;letter-spacing:-.02em}
+  .panel-sub{font-size:12.5px;color:var(--text-mute);margin-top:2px}
+  .card{background:linear-gradient(180deg,var(--surface),var(--bg-2));border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px}
+  .card-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:14px}
+  .card-title .ico{width:26px;height:26px;border-radius:7px;background:rgba(0,229,160,.12);border:1px solid rgba(0,229,160,.25);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--accent)}
+
+  .input{width:100%;padding:11px 14px;background:var(--bg);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:13.5px;font-family:inherit;font-weight:500;outline:none;transition:all .15s}
+  .input:hover{border-color:var(--border-hi)}
+  .input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(0,229,160,.12)}
+  .input::placeholder{color:var(--text-mute)}
+  select.input{cursor:pointer;background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9aa8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;appearance:none}
+  option{background:#13131c;color:#f7f7fa}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:11.5px;font-weight:600;color:var(--text-dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+
+  .btn{padding:10px 16px;border-radius:9px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;text-decoration:none}
+  .btn:hover{background:var(--surface);border-color:var(--border-hi)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-primary{background:linear-gradient(180deg,var(--accent),#00c896);border-color:transparent;color:#050509;font-weight:800;box-shadow:0 4px 12px rgba(0,229,160,.3)}
+  .btn-primary:hover{background:linear-gradient(180deg,#00f0aa,#00b885)}
+  .btn-success{background:linear-gradient(180deg,#22c55e,#16a34a);border-color:transparent;color:#fff}
+  .btn-success:hover{background:linear-gradient(180deg,#16a34a,#15803d)}
+  .btn-danger{background:linear-gradient(180deg,#ff4d6d,#dc2626);border-color:transparent;color:#fff}
+  .btn-danger:hover{background:linear-gradient(180deg,#dc2626,#b91c1c)}
+  .btn-sm{padding:6px 11px;font-size:12px}
+  .btn-block{width:100%;justify-content:center}
+
+  .file-list{display:flex;flex-direction:column;gap:6px}
+  .file-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;background:var(--bg);border:1px solid var(--border);cursor:pointer;transition:all .15s}
+  .file-item:hover{border-color:var(--border-hi);background:var(--surface-2)}
+  .file-item.active{border-color:var(--accent);background:linear-gradient(90deg,rgba(0,229,160,.1),rgba(91,140,255,.03))}
+  .file-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:rgba(0,229,160,.12);border:1px solid rgba(0,229,160,.2);color:var(--accent)}
+  .file-icon.json{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.25);color:var(--gold)}
+  .file-name{font-size:13px;font-weight:600}
+  .file-meta{font-size:11px;color:var(--text-mute);font-family:'JetBrains Mono',monospace}
+  .file-info{flex:1;min-width:0}
+
+  .editor-wrap{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg)}
+  .editor-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface-2);border-bottom:1px solid var(--border);font-size:12px;font-weight:600;gap:8px;flex-wrap:wrap}
+  .editor-name{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace}
+  .editor-actions{display:flex;gap:6px}
+  textarea.editor{width:100%;min-height:460px;padding:16px;background:var(--bg);color:var(--text);border:none;outline:none;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;font-weight:500}
+
+  .upload-zone{border:2px dashed var(--border-3);border-radius:12px;padding:32px 20px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(0,229,160,.02)}
+  .upload-zone:hover{border-color:var(--accent);background:rgba(0,229,160,.06)}
+  .upload-zone.dragover{border-color:var(--accent);background:rgba(0,229,160,.1);transform:scale(1.01)}
+  .upload-zone .icon{font-size:38px;margin-bottom:10px;color:var(--accent)}
+  .upload-zone .title{font-size:14px;font-weight:700;margin-bottom:4px}
+  .upload-zone .desc{font-size:12px;color:var(--text-mute)}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+  .stat-card{background:linear-gradient(180deg,var(--surface),var(--bg-2));border:1px solid var(--border);border-radius:12px;padding:16px}
+  .stat-card .label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-mute);margin-bottom:6px}
+  .stat-card .value{font-size:22px;font-weight:800;letter-spacing:-.03em;font-family:'JetBrains Mono',monospace}
+  .stat-card .value.accent{background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat-card .value.green{color:var(--success)}
+  .stat-card .value.gold{color:var(--gold)}
+  .stat-card .value.info{color:var(--info)}
+  .stat-card .value.danger{color:var(--danger)}
+
+  .server-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+  .server-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px}
+  .server-flag{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,rgba(0,229,160,.15),rgba(91,140,255,.15));border:1px solid rgba(0,229,160,.25);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .server-info{flex:1;min-width:0}
+  .server-name{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace}
+  .server-count{font-size:11px;color:var(--text-mute);margin-top:1px}
+
+  .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-140%);padding:12px 20px;background:var(--surface);border:1px solid var(--border-hi);border-radius:10px;font-size:13px;font-weight:600;color:var(--text);z-index:9999;transition:transform .35s cubic-bezier(.16,1,.3,1);box-shadow:0 16px 40px rgba(0,0,0,.6);display:flex;align-items:center;gap:9px;max-width:90vw}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .toast.ok{border-color:rgba(34,197,94,.4);background:linear-gradient(180deg,rgba(34,197,94,.12),var(--surface))}
+  .toast.err{border-color:rgba(255,77,109,.4);background:linear-gradient(180deg,rgba(255,77,109,.12),var(--surface))}
+
+  .log{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.7;max-height:300px;overflow-y:auto;color:var(--text-dim)}
+  .log-entry{padding:2px 0}
+  .log-entry .time{color:var(--text-mute);margin-right:8px}
+  .log-entry.ok{color:var(--success)}
+  .log-entry.err{color:var(--danger)}
+  .log-entry.info{color:var(--info)}
+
+  .auto-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 8px 4px 11px;margin:3px 3px 3px 0;border-radius:999px;background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.25);font-size:12px;font-weight:600;font-family:'JetBrains Mono',monospace;color:var(--accent);cursor:pointer}
+  .auto-tag:hover{background:rgba(0,229,160,.2)}
+  .auto-tag .x{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,77,109,.15);color:#fca5a5;cursor:pointer;font-size:11px;transition:all .15s}
+  .auto-tag .x:hover{background:rgba(255,77,109,.35);color:#fff}
+
+  .empty{text-align:center;padding:32px 16px;color:var(--text-mute);font-size:13px}
+  .empty .icon{font-size:40px;margin-bottom:10px;opacity:.4}
+
+  textarea.bulk-input{width:100%;min-height:140px;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.6;outline:none;resize:vertical}
+  textarea.bulk-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(0,229,160,.12)}
+
+  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;padding:10px 12px;background:var(--surface-2);color:var(--text-mute);font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:10.5px;border-bottom:1px solid var(--border)}
+  td{padding:10px 12px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace}
+  tr:hover td{background:rgba(0,229,160,.04)}
+  .uid-link{color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+  .uid-link:hover{color:#fff}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+  .modal-bg.show{display:flex}
+  .modal{background:linear-gradient(180deg,var(--surface),var(--bg-2));border:1px solid var(--border);border-radius:16px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.6)}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:2}
+  .modal-body{padding:20px}
+
+  .player-card{background:#0a0a0c;border-radius:12px;overflow:hidden;border:1px solid #1a1a22}
+  .player-banner{height:100px;background:linear-gradient(135deg,#0d1a1a,#16213e,#0f3460);position:relative}
+  .player-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.4) 100%)}
+  .player-avatar-wrap{position:absolute;bottom:-42px;left:20px;z-index:2}
+  .player-avatar{width:84px;height:84px;border-radius:16px;border:3px solid #0a0a0c;background:#1a1a22;object-fit:cover;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+  .player-info{padding:52px 20px 16px}
+  .player-name{font-size:18px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+  .player-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .player-chip{padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace}
+  .player-chip.gold{color:var(--gold);border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.08)}
+  .player-chip.green{color:var(--success);border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.08)}
+  .player-chip.purple{color:var(--accent-3);border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.08)}
+  .player-chip.red{color:#f87171;border-color:rgba(255,77,109,.3);background:rgba(255,77,109,.08)}
+
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .info-item{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px}
+  .info-item .lbl{font-size:10px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+  .info-item .val{font-size:13px;font-weight:600;font-family:'JetBrains Mono',monospace;word-break:break-all}
+
+  .activity-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+  .json-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;max-height:280px;overflow:auto;white-space:pre-wrap;color:var(--text-dim);margin-top:12px}
+  .copy-btn{padding:2px 6px !important;font-size:11px !important;min-width:auto;opacity:.7}
+  .copy-btn:hover{opacity:1}
+  .hidden{display:none !important}
+
+  /* AUTO TARGETS */
+  .auto-summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+  .auto-summary{background:linear-gradient(135deg,rgba(0,229,160,.08),rgba(91,140,255,.04));border:1px solid rgba(0,229,160,.2);border-radius:10px;padding:12px 14px}
+  .auto-summary .lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-mute);margin-bottom:4px}
+  .auto-summary .val{font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--accent)}
+
+  .server-block{background:linear-gradient(180deg,var(--surface),var(--bg-2));border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px}
+  .server-block-header{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,rgba(0,229,160,.05),transparent)}
+  .server-block-flag{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,rgba(0,229,160,.2),rgba(91,140,255,.15));border:1px solid rgba(0,229,160,.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+  .server-block-info{flex:1;min-width:0}
+  .server-block-name{font-size:15px;font-weight:800;font-family:'JetBrains Mono',monospace}
+  .server-block-meta{font-size:11.5px;color:var(--text-mute);margin-top:2px}
+  .server-block-actions{display:flex;gap:6px;flex-wrap:wrap}
+
+  .targets-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:14px}
+  .target-card{background:#0a0a0c;border:1px solid #1a1a22;border-radius:12px;overflow:hidden;position:relative;cursor:pointer;transition:all .2s cubic-bezier(.16,1,.3,1)}
+  .target-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,229,160,.2)}
+  .target-banner{height:56px;background:linear-gradient(135deg,#0d1a1a,#16213e,#0f3460);position:relative;overflow:hidden}
+  .target-banner::after{content:'';position:absolute;top:0;right:0;width:60%;height:100%;background:radial-gradient(circle at 80% 40%,rgba(0,229,160,.3),transparent 70%);pointer-events:none}
+  .target-body{display:flex;align-items:flex-start;gap:10px;padding:0 12px 12px;margin-top:-24px;position:relative;z-index:2}
+  .target-avatar{width:56px;height:56px;border-radius:12px;border:3px solid #0a0a0c;object-fit:cover;background:#1a1a22;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+  .target-av-fallback{width:56px;height:56px;border-radius:12px;border:3px solid #0a0a0c;background:linear-gradient(135deg,#1a1a22,#252535);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;color:var(--text-mute)}
+  .target-meta{flex:1;min-width:0;padding-top:26px}
+  .target-name{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.01em;margin-bottom:2px}
+  .target-uid{font-size:11px;color:var(--text-mute);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:4px;margin-bottom:6px}
+  .target-chips{display:flex;flex-wrap:wrap;gap:4px}
+  .target-chips span{padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--text-dim)}
+  .target-chips .lvl{color:var(--gold);border-color:rgba(251,191,36,.25);background:rgba(251,191,36,.06)}
+  .target-chips .likes{color:var(--success);border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.06)}
+  .target-chips .guild{color:var(--accent-3);border-color:rgba(168,85,247,.25);background:rgba(168,85,247,.06)}
+  .target-remove{position:absolute;top:8px;right:8px;z-index:3;width:26px;height:26px;border-radius:8px;background:rgba(255,77,109,.9);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;opacity:.85;transition:all .15s}
+  .target-remove:hover{opacity:1;background:#dc2626;transform:scale(1.1)}
+  .target-last-like{position:absolute;bottom:8px;right:10px;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:999px;background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.25);z-index:3}
+  .target-last-like.pending{background:rgba(251,191,36,.12);color:var(--gold);border-color:rgba(251,191,36,.25)}
+  .target-last-like.blocked{background:rgba(255,77,109,.12);color:#f87171;border-color:rgba(255,77,109,.25)}
+  .target-info-src{position:absolute;top:8px;left:8px;z-index:3;font-size:9px;font-weight:700;font-family:'JetBrains Mono',monospace;padding:2px 6px;border-radius:6px;background:rgba(0,0,0,.6);color:var(--text-dim);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.08)}
+  .target-info-src.daily{color:var(--success);border-color:rgba(34,197,94,.3)}
+  .target-info-src.cached{color:var(--gold);border-color:rgba(251,191,36,.3)}
+  .blocked-tag{position:absolute;top:44px;left:8px;z-index:3;font-size:9px;font-weight:800;padding:3px 8px;border-radius:6px;background:rgba(255,77,109,.9);color:#fff;letter-spacing:.05em}
+
+  @media (max-width:900px){
+    .shell{grid-template-columns:1fr;padding:16px}
+    .sidebar{position:static;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .sidebar-title,.sidebar-divider{display:none}
+    .sidebar-dev{grid-column:1/-1;margin-top:6px}
+    .field-row{grid-template-columns:1fr}
+    .nav{padding:12px 16px}
+    textarea.editor{min-height:360px;font-size:12px}
+    .info-grid{grid-template-columns:1fr}
+    .targets-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+  }
+  @media (max-width:520px){
+    .sidebar{grid-template-columns:1fr}
+    .nav-title span{display:none}
+    .panel-title{font-size:17px}
+    .stat-card .value{font-size:18px}
+    .targets-grid{grid-template-columns:1fr 1fr;padding:10px;gap:8px}
+    .target-avatar,.target-av-fallback{width:46px;height:46px;font-size:20px}
+    .target-body{margin-top:-20px}
+    .target-meta{padding-top:22px}
+  }
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+<div class="grid-bg"></div>
+
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-logo"><i class="fa-solid fa-crown"></i></div>
+    <div class="nav-title">MALZ CODEX <span>/ Master Panel</span></div>
+    <span class="nav-badge">🔐 ADMIN</span>
+  </div>
+  <div class="nav-right">
+    <a href="/" class="btn btn-sm"><i class="fa-solid fa-user"></i> User View</a>
+    <button class="btn btn-sm" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+  </div>
+</nav>
+
+<!-- LOGIN -->
+<div class="shell" id="loginShell">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-icon"><i class="fa-solid fa-lock"></i></div>
+      <h2>Akses Master</h2>
+      <p>Masukkan password master untuk membuka panel</p>
+      <div class="field">
+        <label>Password Master</label>
+        <input id="masterKey" class="input" type="password" placeholder="••••••••••••" autocomplete="current-password"/>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="doLogin()"><i class="fa-solid fa-unlock"></i> Buka Panel</button>
+    </div>
+  </div>
+</div>
+<!-- MAIN SHELL -->
+<div class="shell hidden" id="mainShell">
+  <aside class="sidebar">
+    <div class="sidebar-title">Navigasi</div>
+    <div class="nav-item active" data-panel="dashboard" onclick="switchPanel('dashboard', this)">
+      <span class="ico"><i class="fa-solid fa-chart-line"></i></span> Dashboard
+    </div>
+    <div class="nav-item" data-panel="usage" onclick="switchPanel('usage', this)">
+      <span class="ico"><i class="fa-solid fa-chart-simple"></i></span> Penggunaan Harian
+    </div>
+    <div class="nav-item" data-panel="blocked" onclick="switchPanel('blocked', this)">
+      <span class="ico"><i class="fa-solid fa-ban"></i></span> UID Diblokir
+      <span class="badge" id="blockedCount">0</span>
+    </div>
+    <div class="nav-item" data-panel="files" onclick="switchPanel('files', this)">
+      <span class="ico"><i class="fa-solid fa-folder"></i></span> Editor File
+    </div>
+    <div class="nav-item" data-panel="upload" onclick="switchPanel('upload', this)">
+      <span class="ico"><i class="fa-solid fa-upload"></i></span> Upload File
+    </div>
+    <div class="nav-item" data-panel="keys" onclick="switchPanel('keys', this)">
+      <span class="ico"><i class="fa-solid fa-key"></i></span> API Keys
+    </div>
+    <div class="nav-item" data-panel="auto" onclick="switchPanel('auto', this)">
+      <span class="ico"><i class="fa-solid fa-robot"></i></span> Auto Target
+      <span class="badge" id="autoCount">0</span>
+    </div>
+    <div class="nav-item" data-panel="actions" onclick="switchPanel('actions', this)">
+      <span class="ico"><i class="fa-solid fa-bolt"></i></span> Aksi Manual
+    </div>
+    <div class="nav-item" data-panel="logs" onclick="switchPanel('logs', this)">
+      <span class="ico"><i class="fa-solid fa-scroll"></i></span> Log Aktivitas
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-dev">
+      <div class="sidebar-dev-header">
+        <img class="sidebar-dev-avatar" src="https://cdn.phototourl.com/member/2026-10-07-da0318ae-9d20-47d8-82b4-0bc72973e9b0.png" alt="malz codex">
+        <div class="sidebar-dev-info">
+          <h4>malz codex</h4>
+          <span>@malzwithyou</span>
+        </div>
+      </div>
+      <div class="sidebar-dev-links">
+        <a href="https://t.me/malzwithyou" target="_blank"><i class="fa-brands fa-telegram"></i> Telegram</a>
+        <a href="https://www.tiktok.com/@malzwithyou" target="_blank"><i class="fa-brands fa-tiktok"></i> TikTok</a>
+        <a href="https://www.youtube.com/@Nikmal_hsb" target="_blank"><i class="fa-brands fa-youtube"></i> YouTube</a>
+        <a href="https://github.com/ini_nikmal" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+
+    <!-- ============ DASHBOARD ============ -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Dashboard</div>
+          <div class="panel-sub">Ringkasan sistem & statistik</div>
+        </div>
+        <button class="btn" onclick="loadStats()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="label">Total Auto UID</div><div class="value accent" id="sAuto">—</div></div>
+        <div class="stat-card"><div class="label">Request Hari Ini</div><div class="value green" id="sReqs">—</div></div>
+        <div class="stat-card"><div class="label">User Keys</div><div class="value info" id="sUsers">—</div></div>
+        <div class="stat-card"><div class="label">Master Keys</div><div class="value gold" id="sMasters">—</div></div>
+        <div class="stat-card"><div class="label">UID Diblokir</div><div class="value danger" id="sBlocked">—</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ico"><i class="fa-solid fa-globe"></i></span> Auto Target per Server</div>
+        <div class="server-grid" id="serverGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ico"><i class="fa-solid fa-key"></i></span> Status Token JWT</div>
+        <div class="server-grid" id="jwtGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ico"><i class="fa-solid fa-users"></i></span> Aktivitas User Hari Ini (kuota)</div>
+        <div id="usageList"><div class="empty"><div class="icon"><i class="fa-solid fa-chart-pie"></i></div>Belum ada aktivitas</div></div>
+      </div>
+    </div>
+
+    <!-- ============ USAGE DETAIL ============ -->
+    <div class="panel" id="panel-usage">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Penggunaan Harian</div>
+          <div class="panel-sub">Key mana → UID mana → berapa like</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="date" id="usageDate" class="input" style="width:auto" onchange="loadUsageDetail()"/>
+          <button class="btn" onclick="loadUsageDetail()"><i class="fa-solid fa-rotate"></i></button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>API Key</th>
+                <th>UID</th>
+                <th>Nickname</th>
+                <th>Server</th>
+                <th>Request</th>
+                <th>Like Terkirim</th>
+                <th>Waktu</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="usageTableBody">
+              <tr><td colspan="8" class="empty">Memuat data…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ BLOCKED ============ -->
+    <div class="panel" id="panel-blocked">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">UID Diblokir</div>
+          <div class="panel-sub">UID ini tidak bisa menerima like</div>
+        </div>
+        <button class="btn" onclick="loadBlocked()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ico"><i class="fa-solid fa-plus"></i></span> Blokir UID</div>
+        <div class="field-row">
+          <input id="blockUidInput" class="input" placeholder="Masukkan UID untuk diblokir"/>
+          <button class="btn btn-danger" onclick="doBlockUid()"><i class="fa-solid fa-ban"></i> Blokir</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ico"><i class="fa-solid fa-ban"></i></span> Daftar Diblokir</div>
+        <div id="blockedList"><div class="empty"><div class="icon"><i class="fa-solid fa-check"></i></div>Tidak ada UID diblokir</div></div>
+      </div>
+    </div>
+
+    <!-- ============ FILE EDITOR ============ -->
+    <div class="panel" id="panel-files">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Editor File</div>
+          <div class="panel-sub">Edit file akun, auto, dan key</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ico"><i class="fa-solid fa-folder"></i></span> Pilih File</div>
+        <div class="file-list" id="fileList"></div>
+      </div>
+      <div class="card" id="editorCard" style="display:none;">
+        <div class="editor-wrap">
+          <div class="editor-header">
+            <div class="editor-name"><span id="editorIcon">📄</span> <span id="editorName">—</span></div>
+            <div class="editor-actions">
+              <button class="btn btn-sm" onclick="reloadFile()"><i class="fa-solid fa-rotate"></i> Reload</button>
+              <button class="btn btn-sm btn-primary" onclick="saveFile()"><i class="fa-solid fa-floppy-disk"></i> Simpan</button>
+            </div>
+          </div>
+          <textarea class="editor" id="editorArea"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ UPLOAD ============ -->
+    <div class="panel" id="panel-upload">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Upload File</div>
+          <div class="panel-sub">Ganti file akun / auto / keys</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="field">
+          <label>File Tujuan</label>
+          <select id="uploadTarget" class="input">
+            <option value="auto.txt">auto.txt</option>
+            <option value="keys.json">keys.json</option>
+            <option value="account_bd.txt">account_bd.txt</option>
+            <option value="account_ind.txt">account_ind.txt</option>
+            <option value="account_br.txt">account_br.txt</option>
+            <option value="account_us.txt">account_us.txt</option>
+            <option value="account_sac.txt">account_sac.txt</option>
+            <option value="account_na.txt">account_na.txt</option>
+          </select>
+        </div>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+          <div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+          <div class="title">Drop file atau klik untuk upload</div>
+          <div class="desc">TXT / JSON saja</div>
+        </div>
+        <input type="file" id="fileInput" style="display:none" onchange="uploadFile(event)"/>
+      </div>
+    </div>
+
+    <!-- ============ KEYS ============ -->
+    <div class="panel" id="panel-keys">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">API Keys</div>
+          <div class="panel-sub">Kelola key user & master</div>
+        </div>
+        <button class="btn btn-primary" onclick="saveKeys()"><i class="fa-solid fa-floppy-disk"></i> Simpan Keys</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ico"><i class="fa-solid fa-user"></i></span> User Keys <button class="btn btn-sm" onclick="addUserKey()" style="margin-left:auto"><i class="fa-solid fa-plus"></i> Tambah</button></div>
+        <div id="userKeysList"></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ico"><i class="fa-solid fa-crown"></i></span> Master Keys (API) <button class="btn btn-sm" onclick="addMasterKey()" style="margin-left:auto"><i class="fa-solid fa-plus"></i> Tambah</button></div>
+        <div id="masterKeysList"></div>
+      </div>
+      <div class="card">
+        <div class="field">
+          <label>Reset Timezone</label>
+          <input id="resetTz" class="input" value="Asia/Jakarta"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ AUTO TARGETS ============ -->
+    <div class="panel" id="panel-auto">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title"><i class="fa-solid fa-robot"></i> Auto Target Like</div>
+          <div class="panel-sub">Setiap hari setelah auto-like, data info pemain muncul di sini</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" onclick="loadAuto()"><i class="fa-solid fa-rotate"></i> Refresh Info</button>
+          <button class="btn btn-success" onclick="runAuto()"><i class="fa-solid fa-play"></i> Jalankan</button>
+        </div>
+      </div>
+
+      <div class="auto-summary-grid" id="autoSummary">
+        <div class="auto-summary"><div class="lbl">Total UID</div><div class="val" id="asTotal">—</div></div>
+        <div class="auto-summary"><div class="lbl">Siap</div><div class="val" id="asReady" style="color:var(--success)">—</div></div>
+        <div class="auto-summary"><div class="lbl">Diblokir</div><div class="val" id="asBlocked" style="color:var(--danger)">—</div></div>
+        <div class="auto-summary"><div class="lbl">Run Terakhir</div><div class="val" id="asLastRun" style="font-size:13px;color:var(--text-dim)">—</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ico"><i class="fa-solid fa-plus"></i></span> Tambah Satu UID</div>
+        <div class="field-row">
+          <input id="addUid" class="input" placeholder="Masukkan UID (angka)"/>
+          <select id="addServer" class="input">
+            <option value="BD">🇧🇩 BD</option>
+            <option value="IND">🇮🇳 IND</option>
+            <option value="BR">🇧🇷 BR</option>
+            <option value="US">🇺🇸 US</option>
+            <option value="SAC">🌎 SAC</option>
+            <option value="NA">🌎 NA</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="addAuto()" style="width:100%;justify-content:center"><i class="fa-solid fa-plus"></i> Tambah ke Auto & Ambil Info</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ico"><i class="fa-solid fa-box"></i></span> Import Massal</div>
+        <div class="field-row">
+          <select id="bulkServer" class="input">
+            <option value="BD">🇧🇩 BD</option>
+            <option value="IND">🇮🇳 IND</option>
+            <option value="BR">🇧🇷 BR</option>
+            <option value="US">🇺🇸 US</option>
+            <option value="SAC">🌎 SAC</option>
+            <option value="NA">🌎 NA</option>
+          </select>
+          <select id="bulkMode" class="input">
+            <option value="replace">🔄 Ganti Semua</option>
+            <option value="append">➕ Tambah</option>
+          </select>
+        </div>
+        <textarea id="bulkText" class="bulk-input" placeholder="Paste UID di sini (satu per baris, atau dipisah koma)"></textarea>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="bulkUploadText()" style="flex:1;justify-content:center"><i class="fa-solid fa-download"></i> Import Teks</button>
+          <button class="btn" onclick="document.getElementById('bulkFile').click()"><i class="fa-solid fa-folder"></i> Dari File</button>
+          <input type="file" id="bulkFile" style="display:none" onchange="bulkUploadFile(event)"/>
+        </div>
+      </div>
+
+      <div id="autoPanels"></div>
+    </div>
+
+    <!-- ============ ACTIONS ============ -->
+    <div class="panel" id="panel-actions">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Aksi Manual</div>
+          <div class="panel-sub">Trigger manual</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ico"><i class="fa-solid fa-robot"></i></span> Auto-Like</div>
+        <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px">Jalankan auto-like untuk semua target di auto.txt sekarang. Info fetch akan berjalan otomatis setelahnya.</p>
+        <button class="btn btn-success" onclick="runAuto()"><i class="fa-solid fa-play"></i> Jalankan Auto-Like Sekarang</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ico"><i class="fa-solid fa-download"></i></span> Info Fetch (DB)</div>
+        <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px">Ambil info pemain untuk semua auto UID dan simpan ke DB. UID yang sudah diambil hari ini akan dilewati.</p>
+        <button class="btn btn-primary" onclick="runInfoFetch()"><i class="fa-solid fa-download"></i> Jalankan Info Fetch</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ico"><i class="fa-solid fa-key"></i></span> Refresh JWT</div>
+        <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px">Paksa refresh token JWT untuk semua server.</p>
+        <button class="btn btn-primary" onclick="refreshJwt()"><i class="fa-solid fa-rotate"></i> Refresh Semua JWT</button>
+      </div>
+    </div>
+
+    <!-- ============ LOGS ============ -->
+    <div class="panel" id="panel-logs">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Log Aktivitas</div>
+          <div class="panel-sub">Aktivitas sesi</div>
+        </div>
+        <button class="btn btn-sm" onclick="clearLog()">Hapus</button>
+      </div>
+      <div class="card">
+        <div class="log" id="logBox"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PLAYER INFO -->
+<div class="modal-bg" id="playerModal" onclick="if(event.target===this)closePlayerModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <strong><i class="fa-solid fa-id-badge"></i> Info Pemain</strong>
+      <button class="btn btn-sm" onclick="closePlayerModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="playerModalBody">
+      <div class="empty">Memuat…</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let MASTER_KEY = localStorage.getItem('malz_master_key') || '';
+let CURRENT_FILE = null;
+let STATS = null;
+
+const SERVER_FLAGS = {BD:'🇧🇩',IND:'🇮🇳',BR:'🇧🇷',US:'🇺🇸',SAC:'🌎',NA:'🌎'};
+const AVATAR_CDN = 'https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/';
+
+function avatarSrc(headPic) {
+  if (!headPic) return '';
+  return AVATAR_CDN + headPic + '.png';
+}
+function copyText(text, label) {
+  if (!text) return toast('Tidak ada yang dicopy', false);
+  navigator.clipboard.writeText(String(text)).then(() => toast((label || 'Dicopy') + ': ' + text, true)).catch(() => toast('Gagal copy', false));
+}
+function copyBtn(val, label) {
+  if (val === undefined || val === null || val === '') return '';
+  return `<button class="btn btn-sm copy-btn" onclick="event.stopPropagation();copyText('${String(val).replace(/'/g,"\\'")}','${label || 'Dicopy'}')" title="Copy"><i class="fa-solid fa-copy"></i></button>`;
+}
+
+/* ========== LOGIN ========== */
+function doLogin() {
+  const k = document.getElementById('masterKey').value.trim();
+  if (!k) return toast('Masukkan password', false);
+  MASTER_KEY = k;
+  localStorage.setItem('malz_master_key', k);
+  verifyAndEnter();
+}
+function logout() {
+  localStorage.removeItem('malz_master_key');
+  MASTER_KEY = '';
+  document.getElementById('mainShell').classList.add('hidden');
+  document.getElementById('loginShell').classList.remove('hidden');
+}
+async function verifyAndEnter() {
+  try {
+    const r = await fetch('/master/api/files?key=' + encodeURIComponent(MASTER_KEY));
+    if (r.status !== 200) throw new Error('Password master salah');
+    document.getElementById('loginShell').classList.add('hidden');
+    document.getElementById('mainShell').classList.remove('hidden');
+    toast('Selamat datang, Master', true);
+    loadAll();
+  } catch (e) {
+    toast(e.message || 'Login gagal', false);
+    localStorage.removeItem('malz_master_key');
+    MASTER_KEY = '';
+  }
+}
+
+function switchPanel(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  if (name === 'files') loadFiles();
+  if (name === 'keys') loadKeys();
+  if (name === 'auto') loadAuto();
+  if (name === 'dashboard') loadStats();
+  if (name === 'usage') {
+    if (!document.getElementById('usageDate').value) {
+      document.getElementById('usageDate').value = new Date().toISOString().slice(0,10);
+    }
+    loadUsageDetail();
+  }
+  if (name === 'blocked') loadBlocked();
+}
+
+let toastTimer;
+function toast(msg, ok = true) {
+  const t = document.getElementById('toast');
+  t.innerHTML = (ok ? '<i class="fa-solid fa-circle-check"></i> ' : '<i class="fa-solid fa-circle-xmark"></i> ') + msg;
+  t.className = 'toast ' + (ok ? 'ok' : 'err') + ' show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function logMsg(msg, type = 'info') {
+  const box = document.getElementById('logBox');
+  const time = new Date().toLocaleTimeString();
+  const div = document.createElement('div');
+  div.className = 'log-entry ' + type;
+  div.innerHTML = `<span class="time">${time}</span>${escapeHtml(msg)}`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+function clearLog() {
+  document.getElementById('logBox').innerHTML = '';
+  toast('Log dihapus', true);
+}
+
+async function api(path, opts = {}) {
+  const sep = path.includes('?') ? '&' : '?';
+  const url = path + sep + 'key=' + encodeURIComponent(MASTER_KEY);
+  const r = await fetch(url, opts);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || ('HTTP ' + r.status));
+  return data;
+}
+
+async function loadAll() {
+  loadStats();
+  loadFiles();
+  loadAuto();
+  loadBlocked();
+  logMsg('Panel Master terbuka', 'ok');
+}
+
+/* ========== STATS ========== */
+async function loadStats() {
+  try {
+    const data = await api('/master/api/stats');
+    STATS = data;
+    const totalAuto = Object.values(data.auto_targets || {}).reduce((a,b)=>a+b, 0);
+    document.getElementById('sAuto').textContent = totalAuto;
+    document.getElementById('sReqs').textContent = data.total_today_requests ?? 0;
+    document.getElementById('sUsers').textContent = data.keys_count?.user ?? 0;
+    document.getElementById('sMasters').textContent = data.keys_count?.master ?? 0;
+    document.getElementById('sBlocked').textContent = data.blocked_count ?? 0;
+    document.getElementById('autoCount').textContent = totalAuto;
+    document.getElementById('blockedCount').textContent = data.blocked_count ?? 0;
+
+    document.getElementById('serverGrid').innerHTML = Object.keys(SERVER_FLAGS).map(srv => `
+      <div class="server-card">
+        <div class="server-flag">${SERVER_FLAGS[srv]}</div>
+        <div class="server-info">
+          <div class="server-name">${srv}</div>
+          <div class="server-count">${data.auto_targets?.[srv] || 0} auto UID</div>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('jwtGrid').innerHTML = Object.entries(data.jwt_status || {}).map(([srv, s]) => {
+      let status = 'Belum ada cache', cls = 'danger';
+      if (s.tokens > 0) {
+        const h = Math.floor(s.age_seconds / 3600);
+        const m = Math.floor((s.age_seconds % 3600) / 60);
+        status = `${s.tokens} token · ${h}j ${m}m lalu`;
+        cls = 'green';
+      }
+      return `
+        <div class="server-card">
+          <div class="server-flag">${SERVER_FLAGS[srv]}</div>
+          <div class="server-info">
+            <div class="server-name">${srv}</div>
+            <div class="server-count" style="color:var(--${cls})">${status}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const usage = data.today_usage || {};
+    const keys = Object.keys(usage);
+    document.getElementById('usageList').innerHTML = keys.length === 0
+      ? '<div class="empty"><div class="icon"><i class="fa-solid fa-chart-pie"></i></div>Belum ada aktivitas hari ini</div>'
+      : keys.map(k => `
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+          <span style="font-family:'JetBrains Mono',monospace;color:var(--accent)">${escapeHtml(k)}</span>
+          <span style="color:var(--success);font-weight:700">${usage[k]} UID</span>
+        </div>
+      `).join('');
+  } catch (e) {
+    toast('Gagal memuat statistik: ' + e.message, false);
+  }
+}
+
+/* ========== USAGE ========== */
+async function loadUsageDetail() {
+  const date = document.getElementById('usageDate').value || new Date().toISOString().slice(0,10);
+  try {
+    const data = await api('/master/api/usage-detail?date=' + encodeURIComponent(date));
+    const rows = data.rows || [];
+    const tbody = document.getElementById('usageTableBody');
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="empty">Tidak ada aktivitas pada tanggal ini</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td style="color:var(--accent)">${escapeHtml(r.api_key)}</td>
+        <td><span class="uid-link" onclick="openPlayerInfo('${r.uid}')">${r.uid}</span></td>
+        <td>${escapeHtml(r.nickname || '—')}</td>
+        <td>${escapeHtml(r.server || '—')}</td>
+        <td>${r.requests}</td>
+        <td style="color:var(--success);font-weight:700">${r.likes_given_total}</td>
+        <td style="color:var(--text-mute)">${escapeHtml(r.last_at || '—')}</td>
+        <td><button class="btn btn-sm btn-danger" onclick="doBlockUid('${r.uid}')">Blokir</button></td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    toast('Gagal memuat penggunaan: ' + e.message, false);
+  }
+}
+
+/* ========== BLOCKED ========== */
+async function loadBlocked() {
+  try {
+    const data = await api('/master/api/blocked');
+    const list = data.blocked || [];
+    document.getElementById('blockedCount').textContent = list.length;
+    document.getElementById('sBlocked').textContent = list.length;
+    document.getElementById('blockedList').innerHTML = list.length === 0
+      ? '<div class="empty"><div class="icon"><i class="fa-solid fa-check"></i></div>Tidak ada UID diblokir</div>'
+      : list.map(u => `
+        <span class="auto-tag" style="border-color:rgba(255,77,109,.35);color:#fca5a5">
+          <span class="uid-link" onclick="openPlayerInfo('${u}')">${u}</span>
+          <span class="x" onclick="doUnblockUid('${u}')" title="Buka blokir">✕</span>
+        </span>
+      `).join('');
+  } catch (e) {
+    toast('Gagal memuat daftar blokir: ' + e.message, false);
+  }
+}
+
+async function doBlockUid(uid) {
+  uid = uid || document.getElementById('blockUidInput').value.trim();
+  if (!uid || !/^\d+$/.test(uid)) return toast('UID valid diperlukan', false);
+  try {
+    await api('/master/api/block', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key: MASTER_KEY, uid })
+    });
+    toast('UID ' + uid + ' diblokir', true);
+    logMsg('Blokir UID: ' + uid, 'ok');
+    document.getElementById('blockUidInput').value = '';
+    loadBlocked();
+    loadAuto();
+  } catch (e) {
+    toast('Gagal blokir: ' + e.message, false);
+  }
+}
+
+async function doUnblockUid(uid) {
+  try {
+    await api('/master/api/unblock', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key: MASTER_KEY, uid })
+    });
+    toast('UID ' + uid + ' dibuka blokirnya', true);
+    logMsg('Buka blokir UID: ' + uid, 'info');
+    loadBlocked();
+    loadAuto();
+  } catch (e) {
+    toast('Gagal buka blokir: ' + e.message, false);
+  }
+}
+
+/* ========== PLAYER INFO MODAL ========== */
+async function openPlayerInfo(uid) {
+  document.getElementById('playerModal').classList.add('show');
+  document.getElementById('playerModalBody').innerHTML = '<div class="empty">Memuat pemain…</div>';
+  try {
+    const data = await api('/master/api/player-info?uid=' + encodeURIComponent(uid));
+    const avatarUrl = data.avatarUrl || avatarSrc(data.headPic);
+
+    const activity = (data.today_like_activity || []).map(a => `
+      <div class="activity-row">
+        <span style="color:var(--accent)">${escapeHtml(a.api_key)}</span>
+        <span>+${a.likes_given_total} like · ${a.requests} req · ${escapeHtml(a.last_at || '')}</span>
+      </div>
+    `).join('') || '<div class="empty" style="padding:12px">Belum ada like hari ini</div>';
+
+    const historyDays = data.history_days || [];
+    let historyHtml = '';
+    if (historyDays.length) {
+      const days = historyDays.sort().reverse().slice(0, 7);
+      historyHtml = `
+        <div style="margin-top:16px">
+          <div class="card-title" style="margin-bottom:8px"><span class="ico"><i class="fa-solid fa-calendar"></i></span> Riwayat Info Harian (${historyDays.length} hari)</div>
+          ${days.map(d => {
+            const day = data.history[d] || {};
+            const snaps = (day.snapshots || []);
+            const last = snaps[snaps.length - 1] || {};
+            const sn = last.snapshot || {};
+            return `
+              <div style="padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;font-size:12px">
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+                  <strong style="color:var(--accent);font-family:'JetBrains Mono',monospace">${d}</strong>
+                  <span style="color:var(--text-mute);font-size:11px">${snaps.length} snap · ${escapeHtml(day.last_at || '')}</span>
+                </div>
+                <div style="color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:11px">
+                  ❤ ${sn.likes ?? '—'} · Lvl ${sn.level ?? '—'} · ${escapeHtml(sn.nickname || '')} · src: ${escapeHtml(last.source || '—')}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>`;
+    }
+
+    document.getElementById('playerModalBody').innerHTML = `
+      <div class="player-card">
+        <div class="player-banner"></div>
+        <div class="player-avatar-wrap">
+          ${avatarUrl
+            ? `<img class="player-avatar" src="${avatarUrl}" onerror="this.outerHTML='<div class=\\'player-avatar\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:32px;background:#1a1a22\\'><i class=\\'fa-solid fa-user\\'></i></div>'"/>`
+            : `<div class="player-avatar" style="display:flex;align-items:center;justify-content:center;font-size:32px;background:#1a1a22;color:var(--text-mute)"><i class="fa-solid fa-user"></i></div>`
+          }
+        </div>
+        <div class="player-info">
+          <div class="player-name">${escapeHtml(data.nickname || 'Unknown')} ${copyBtn(data.nickname,'Nama')}</div>
+          <div style="font-size:12px;color:var(--text-mute);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:6px">
+            ${escapeHtml(String(data.uid))} ${copyBtn(data.uid,'UID')}
+          </div>
+          <div class="player-meta">
+            <span class="player-chip gold">Lvl ${data.level ?? '—'}</span>
+            <span class="player-chip green">❤ ${data.likes ?? 0}</span>
+            <span class="player-chip purple">${escapeHtml(data.region || '—')}</span>
+            ${data.clanName ? `<span class="player-chip">${escapeHtml(data.clanName)}${data.clanId ? ' · ' + data.clanId : ''}</span>` : ''}
+            ${data.is_blocked ? `<span class="player-chip red">DIBLOKIR</span>` : ''}
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item"><div class="lbl">Rank BR</div><div class="val">${data.rank ?? '—'}</div></div>
+        <div class="info-item"><div class="lbl">Rank CS</div><div class="val">${data.csRank ?? '—'}</div></div>
+        <div class="info-item"><div class="lbl">Nama Guild</div><div class="val">${escapeHtml(data.clanName || '—')}</div></div>
+        <div class="info-item"><div class="lbl">UID Guild</div><div class="val">${escapeHtml(String(data.clanId || '—'))}</div></div>
+        <div class="info-item"><div class="lbl">Leader Guild</div><div class="val">${escapeHtml(data.clanLeaderName || '—')}</div></div>
+        <div class="info-item"><div class="lbl">UID Leader</div><div class="val">${escapeHtml(String(data.clanLeaderUid || '—'))}</div></div>
+        <div class="info-item"><div class="lbl">Level Guild</div><div class="val">${data.clanLevel ?? '—'}</div></div>
+        <div class="info-item"><div class="lbl">Credit</div><div class="val">${data.creditScore ?? '—'}</div></div>
+        <div class="info-item"><div class="lbl">Login Terakhir</div><div class="val">${escapeHtml(data.lastLogin || '—')}</div></div>
+        <div class="info-item"><div class="lbl">Umur Akun</div><div class="val">${escapeHtml(data.accountAge || '—')}</div></div>
+        <div class="info-item"><div class="lbl">Dibuat</div><div class="val">${escapeHtml(data.created || '—')}</div></div>
+        <div class="info-item"><div class="lbl">HeadPic ID</div><div class="val">${data.headPic ?? '—'}</div></div>
+      </div>
+
+      ${data.signature ? `<div style="margin-top:12px;padding:10px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--text-dim)">${escapeHtml(data.signature)}</div>` : ''}
+
+      <div style="margin-top:16px">
+        <div class="card-title" style="margin-bottom:8px"><span class="ico"><i class="fa-solid fa-chart-simple"></i></span> Aktivitas Like Hari Ini</div>
+        ${activity}
+      </div>
+
+      ${historyHtml}
+
+      <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+        ${data.is_blocked
+          ? `<button class="btn btn-success" onclick="doUnblockUid('${data.uid}');closePlayerModal()"><i class="fa-solid fa-check"></i> Buka Blokir</button>`
+          : `<button class="btn btn-danger" onclick="doBlockUid('${data.uid}');closePlayerModal()"><i class="fa-solid fa-ban"></i> Blokir</button>`
+        }
+        <button class="btn" onclick="toggleFullJson()"><i class="fa-solid fa-code"></i> JSON Lengkap</button>
+        <button class="btn" onclick="copyText('${data.uid}','UID')"><i class="fa-solid fa-copy"></i> Copy UID</button>
+      </div>
+      <div class="json-box hidden" id="fullJsonBox">${escapeHtml(JSON.stringify(data, null, 2))}</div>
+    `;
+  } catch (e) {
+    document.getElementById('playerModalBody').innerHTML = `<div class="empty" style="color:var(--danger)">Gagal: ${escapeHtml(e.message)}</div>`;
+  }
+}
+function closePlayerModal() {
+  document.getElementById('playerModal').classList.remove('show');
+}
+function toggleFullJson() {
+  document.getElementById('fullJsonBox')?.classList.toggle('hidden');
+}
+
+/* ========== FILES ========== */
+async function loadFiles() {
+  try {
+    const data = await api('/master/api/files');
+    document.getElementById('fileList').innerHTML = data.files.map(f => `
+      <div class="file-item" onclick="openFile('${f.name}')">
+        <div class="file-icon ${f.name.endsWith('.json')?'json':''}">
+          <i class="fa-solid ${f.name.endsWith('.json')?'fa-gear':'fa-file-lines'}"></i>
+        </div>
+        <div class="file-info">
+          <div class="file-name">${f.name}</div>
+          <div class="file-meta">${f.exists ? (f.size + ' byte · ' + f.lines + ' baris') : 'tidak ada'}</div>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    toast('Gagal memuat daftar file', false);
+  }
+}
+async function openFile(name) {
+  try {
+    const data = await api('/master/api/file?name=' + encodeURIComponent(name));
+    CURRENT_FILE = name;
+    document.getElementById('editorName').textContent = name;
+    document.getElementById('editorIcon').innerHTML = name.endsWith('.json') ? '<i class="fa-solid fa-gear"></i>' : '<i class="fa-solid fa-file-lines"></i>';
+    document.getElementById('editorArea').value = data.content || '';
+    document.getElementById('editorCard').style.display = 'block';
+    document.querySelectorAll('.file-item').forEach(f => {
+      if (f.textContent.includes(name)) f.classList.add('active');
+      else f.classList.remove('active');
+    });
+    logMsg('Membuka file: ' + name, 'info');
+  } catch (e) {
+    toast('Gagal membuka: ' + e.message, false);
+  }
+}
+async function reloadFile() {
+  if (!CURRENT_FILE) return;
+  await openFile(CURRENT_FILE);
+  toast('Dimuat ulang', true);
+}
+async function saveFile() {
+  if (!CURRENT_FILE) return toast('Belum ada file dipilih', false);
+  const content = document.getElementById('editorArea').value;
+  try {
+    await api('/master/api/file', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key: MASTER_KEY, name: CURRENT_FILE, content })
+    });
+    toast('Tersimpan: ' + CURRENT_FILE, true);
+    logMsg('Simpan file: ' + CURRENT_FILE, 'ok');
+    if (CURRENT_FILE === 'auto.txt') loadAuto();
+  } catch (e) {
+    toast('Gagal simpan: ' + e.message, false);
+    logMsg('Gagal simpan: ' + e.message, 'err');
+  }
+}
+
+/* ========== UPLOAD ========== */
+const zone = document.getElementById('uploadZone');
+['dragenter', 'dragover'].forEach(ev => {
+  zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('dragover'); });
+});
+['dragleave', 'drop'].forEach(ev => {
+  zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('dragover'); });
+});
+zone.addEventListener('drop', e => {
+  const f = e.dataTransfer.files[0];
+  if (f) doUpload(f);
+});
+async function uploadFile(event) {
+  const f = event.target.files[0];
+  if (!f) return;
+  doUpload(f);
+}
+async function doUpload(file) {
+  const target = document.getElementById('uploadTarget').value;
+  const fd = new FormData();
+  fd.append('file', file, file.name);
+  fd.append('name', target);
+  fd.append('key', MASTER_KEY);
+  try {
+    const r = await fetch('/master/api/upload', { method: 'POST', body: fd });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Upload gagal');
+    toast('Upload ' + target + ' (' + data.size + ' byte)', true);
+    logMsg('Upload ' + target, 'ok');
+    document.getElementById('fileInput').value = '';
+    if (target === 'auto.txt') loadAuto();
+    if (target === 'keys.json') loadKeys();
+    loadFiles();
+  } catch (e) {
+    toast('Upload gagal: ' + e.message, false);
+  }
+}
+
+/* ========== KEYS ========== */
+async function loadKeys() {
+  try {
+    const data = await api('/master/api/keys');
+    const uk = Object.entries(data.allowed_keys || {});
+    document.getElementById('userKeysList').innerHTML = uk.length === 0
+      ? '<div class="empty">Belum ada user key</div>'
+      : uk.map(([k, v]) => `
+        <div class="field-row" style="margin-bottom:6px">
+          <input class="input user-key" value="${escapeHtml(k)}"/>
+          <input class="input user-name" value="${escapeHtml(v)}"/>
+          <button class="btn btn-sm btn-danger" onclick="this.parentNode.remove()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      `).join('');
+
+    const mk = data.admin_keys || [];
+    document.getElementById('masterKeysList').innerHTML = mk.length === 0
+      ? '<div class="empty">Belum ada master key</div>'
+      : mk.map(k => `
+        <div class="field-row" style="margin-bottom:6px">
+          <input class="input master-key" value="${escapeHtml(k)}"/>
+          <button class="btn btn-sm btn-danger" onclick="this.parentNode.remove()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      `).join('');
+    document.getElementById('resetTz').value = data.reset_tz || 'Asia/Jakarta';
+  } catch (e) {
+    toast('Gagal memuat keys: ' + e.message, false);
+  }
+}
+function addUserKey() {
+  const div = document.createElement('div');
+  div.className = 'field-row';
+  div.style.marginBottom = '6px';
+  div.innerHTML = `
+    <input class="input user-key" placeholder="MALZ-USER-XXX"/>
+    <input class="input user-name" placeholder="username"/>
+    <button class="btn btn-sm btn-danger" onclick="this.parentNode.remove()"><i class="fa-solid fa-xmark"></i></button>
+  `;
+  document.getElementById('userKeysList').appendChild(div);
+}
+function addMasterKey() {
+  const div = document.createElement('div');
+  div.className = 'field-row';
+  div.style.marginBottom = '6px';
+  div.innerHTML = `
+    <input class="input master-key" placeholder="MALZ-MASTER-XXX"/>
+    <button class="btn btn-sm btn-danger" onclick="this.parentNode.remove()"><i class="fa-solid fa-xmark"></i></button>
+  `;
+  document.getElementById('masterKeysList').appendChild(div);
+}
+async function saveKeys() {
+  const userKeys = {};
+  document.querySelectorAll('#userKeysList .user-key').forEach((el, i) => {
+    const k = el.value.trim();
+    const n = document.querySelectorAll('#userKeysList .user-name')[i]?.value.trim() || k;
+    if (k) userKeys[k] = n;
+  });
+  const masterKeys = [];
+  document.querySelectorAll('#masterKeysList .master-key').forEach(el => {
+    const k = el.value.trim();
+    if (k) masterKeys.push(k);
+  });
+  const resetTz = document.getElementById('resetTz').value.trim() || 'Asia/Jakarta';
+  try {
+    await api('/master/api/keys', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key: MASTER_KEY, allowed_keys: userKeys, admin_keys: masterKeys, reset_tz: resetTz })
+    });
+    toast('Keys tersimpan', true);
+    logMsg(`Keys tersimpan (${Object.keys(userKeys).length} user, ${masterKeys.length} master)`, 'ok');
+  } catch (e) {
+    toast('Gagal simpan: ' + e.message, false);
+  }
+}
+
+/* ========== AUTO TARGETS ========== */
+async function loadAuto() {
+  try {
+    const data = await api('/master/api/auto-with-info');
+    const info = data.auto_with_info || {};
+    const summary = data.last_run_summary || {};
+
+    const totalUids = Object.values(info).reduce((a, b) => a + b.length, 0);
+    const blockedCount = Object.values(info).flat().filter(x => x.is_blocked).length;
+    const readyCount = totalUids - blockedCount;
+    document.getElementById('asTotal').textContent = totalUids;
+    document.getElementById('asReady').textContent = readyCount;
+    document.getElementById('asBlocked').textContent = blockedCount;
+    document.getElementById('asLastRun').textContent = summary.last_run || '—';
+    document.getElementById('autoCount').textContent = totalUids;
+
+    const container = document.getElementById('autoPanels');
+    const serversWithData = Object.keys(SERVER_FLAGS);
+
+    container.innerHTML = serversWithData.map(srv => {
+      const rows = info[srv] || [];
+      const meta = rows.length === 0
+        ? 'Tidak ada target'
+        : `${rows.length} UID · ${rows.filter(r => r.last_likes_given).length} aktif`;
+
+      const gridHtml = rows.length === 0
+        ? `<div class="empty" style="padding:24px;grid-column:1/-1">
+             <div class="icon">${SERVER_FLAGS[srv]}</div>
+             Belum ada auto target di ${srv}
+           </div>`
+        : rows.map(r => renderTargetCard(r, srv)).join('');
+
+      return `
+        <div class="server-block">
+          <div class="server-block-header">
+            <div class="server-block-flag">${SERVER_FLAGS[srv]}</div>
+            <div class="server-block-info">
+              <div class="server-block-name">${srv}</div>
+              <div class="server-block-meta">${meta}</div>
+            </div>
+            <div class="server-block-actions">
+              ${rows.length > 0 ? `<button class="btn btn-sm btn-danger" onclick="clearServerAuto('${srv}')"><i class="fa-solid fa-trash"></i> Kosongkan</button>` : ''}
+            </div>
+          </div>
+          <div class="targets-grid">${gridHtml}</div>
+        </div>
+      `;
+    }).join('');
+  } catch (e) {
+    toast('Gagal memuat auto: ' + e.message, false);
+  }
+}
+
+function renderTargetCard(r, srv) {
+  const uid = r.uid;
+  const nickname = r.nickname || 'Unknown';
+  const level = r.level ?? 0;
+  const likes = r.likes ?? 0;
+  const avatarUrl = r.avatarUrl || avatarSrc(r.headPic);
+  const guildText = r.clanName ? r.clanName : '';
+
+  const infoDate = r.info_date || '';
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const isFresh = infoDate === todayStr;
+  const srcClass = isFresh ? 'daily' : 'cached';
+  const srcLabel = isFresh ? '✓ Hari ini' : (infoDate || 'Belum ada data');
+
+  let likeTag = '';
+  if (r.is_blocked) {
+    likeTag = `<span class="target-last-like blocked">DIBLOKIR</span>`;
+  } else if (r.last_likes_given !== undefined && r.last_likes_given !== null) {
+    const n = r.last_likes_given;
+    likeTag = `<span class="target-last-like">+${n} like</span>`;
+  } else {
+    likeTag = `<span class="target-last-like pending">pending</span>`;
+  }
+
+  return `
+    <div class="target-card" onclick="openPlayerInfo('${uid}')">
+      <div class="target-info-src ${srcClass}">${escapeHtml(srcLabel)}</div>
+      ${r.is_blocked ? '<span class="blocked-tag">DIBLOKIR</span>' : ''}
+      <button class="target-remove" onclick="event.stopPropagation();removeAuto('${srv}','${uid}')" title="Hapus">✕</button>
+      <div class="target-banner"></div>
+      <div class="target-body">
+        ${avatarUrl
+          ? `<img class="target-avatar" src="${avatarUrl}" onerror="this.outerHTML='<div class=\\'target-av-fallback\\'><i class=\\'fa-solid fa-user\\'></i></div>'"/>`
+          : `<div class="target-av-fallback"><i class="fa-solid fa-user"></i></div>`
+        }
+        <div class="target-meta">
+          <div class="target-name">${escapeHtml(nickname)}</div>
+          <div class="target-uid">${uid} ${copyBtn(uid,'UID')}</div>
+          <div class="target-chips">
+            <span class="lvl">Lvl ${level}</span>
+            <span class="likes">❤ ${likes}</span>
+            ${guildText ? `<span class="guild">${escapeHtml(guildText)}</span>` : ''}
+          </div>
+        </div>
+      </div>
+      ${likeTag}
+    </div>
+  `;
+}
+
+async function bulkUploadText() {
+  const srv = document.getElementById('bulkServer').value;
+  const mode = document.getElementById('bulkMode').value;
+  const text = document.getElementById('bulkText').value.trim();
+  if (!text) return toast('Paste UID dulu', false);
+  try {
+    const r = await api('/master/api/auto/bulk-upload', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key: MASTER_KEY, server_name: srv, mode, text })
+    });
+    toast(`Import ${r.imported} UID ke ${srv} (${mode})`, true);
+    logMsg(`Bulk import: ${r.imported} UID → ${srv} (${mode})`, 'ok');
+    document.getElementById('bulkText').value = '';
+    loadAuto();
+  } catch (e) {
+    toast('Gagal import: ' + e.message, false);
+  }
+}
+
+async function bulkUploadFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const srv = document.getElementById('bulkServer').value;
+  const mode = document.getElementById('bulkMode').value;
+  const fd = new FormData();
+  fd.append('file', file, file.name);
+  fd.append('key', MASTER_KEY);
+  fd.append('server_name', srv);
+  fd.append('mode', mode);
+  try {
+    const r = await fetch('/master/api/auto/bulk-upload', { method: 'POST', body: fd });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Upload gagal');
+    toast(`Import ${data.imported} UID ke ${srv} (${mode})`, true);
+    logMsg(`Bulk file: ${data.imported} UID → ${srv} (${mode})`, 'ok');
+    document.getElementById('bulkFile').value = '';
+    loadAuto();
+  } catch (e) {
+    toast('Gagal upload file: ' + e.message, false);
+  }
+}
+
+async function addAuto() {
+  const uid = document.getElementById('addUid').value.trim();
+  const srv = document.getElementById('addServer').value;
+  if (!uid || !/^\d+$/.test(uid)) return toast('UID tidak valid', false);
+  try {
+    await api('/master/api/auto/add', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key: MASTER_KEY, uid, server_name: srv })
+    });
+    toast('Ditambahkan ' + uid + ' ke ' + srv, true);
+    logMsg('Tambah auto UID: ' + srv + '/' + uid, 'ok');
+    document.getElementById('addUid').value = '';
+    await loadAuto();
+    openPlayerInfo(uid);
+  } catch (e) {
+    toast('Gagal tambah: ' + e.message, false);
+  }
+}
+
+async function removeAuto(srv, uid) {
+  if (!confirm(`Hapus ${uid} dari ${srv}?`)) return;
+  try {
+    await api('/master/api/auto/remove', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key: MASTER_KEY, uid, server_name: srv })
+    });
+    toast('Dihapus ' + uid, true);
+    logMsg('Hapus auto UID: ' + srv + '/' + uid, 'info');
+    loadAuto();
+  } catch (e) {
+    toast('Gagal hapus: ' + e.message, false);
+  }
+}
+
+async function clearServerAuto(srv) {
+  if (!confirm(`Kosongkan SEMUA UID dari ${srv}?`)) return;
+  try {
+    await api('/master/api/auto/clear', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key: MASTER_KEY, server_name: srv })
+    });
+    toast(srv + ' dikosongkan', true);
+    logMsg('Kosongkan semua UID dari ' + srv, 'info');
+    loadAuto();
+  } catch (e) {
+    toast('Gagal kosongkan: ' + e.message, false);
+  }
+}
+
+/* ========== ACTIONS ========== */
+async function runAuto() {
+  if (!confirm('Jalankan auto-like sekarang? Proses ini akan memakan waktu dan info fetch akan otomatis berjalan setelahnya.')) return;
+  try {
+    await api('/master/api/run-auto', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key: MASTER_KEY })
+    });
+    toast('Auto-like dijalankan di background', true);
+    logMsg('Auto-like manual dijalankan', 'ok');
+  } catch (e) {
+    toast('Gagal: ' + e.message, false);
+  }
+}
+
+async function runInfoFetch() {
+  if (!confirm('Ambil info pemain untuk semua auto UID sekarang? UID yang sudah diambil hari ini akan dilewati.')) return;
+  try {
+    await api('/master/api/run-info-fetch', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key: MASTER_KEY })
+    });
+    toast('Info fetch dijalankan di background', true);
+    logMsg('Info fetch manual dijalankan', 'ok');
+  } catch (e) {
+    toast('Gagal: ' + e.message, false);
+  }
+}
+
+async function refreshJwt() {
+  if (!confirm('Paksa refresh JWT untuk semua server?')) return;
+  try {
+    const data = await api('/master/api/jwt-refresh', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key: MASTER_KEY })
+    });
+    toast('Refresh JWT selesai', true);
+    logMsg('JWT refresh: ' + JSON.stringify(data.refreshed), 'ok');
+    loadStats();
+  } catch (e) {
+    toast('Gagal: ' + e.message, false);
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+document.getElementById('masterKey').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+if (MASTER_KEY) verifyAndEnter();
+</script>
+</body>
+</html>=
